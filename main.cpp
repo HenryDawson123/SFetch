@@ -14,25 +14,26 @@ class systemInfo {
 public:
 	string getOS() {
 /*This method could be seen as bad form will likely update and change this using popen() instead of system()*/
-		system("lsb_release -sd >/tmp/distro.out");
-		ifstream infile;
-		filename = "/tmp/distro.out";
-		infile.open(filename);
-		if(infile.good()){
-			getline(infile, distroLine);
-		}
-		infile.close();
-		distroLine.erase(
-		remove( distroLine.begin(), distroLine.end(), '\"' ),
-		distroLine.end()
-		);
-		return distroLine;
+//		system("lsb_release -sd >/tmp/distro.out");
+//	ifstream infile;
+//	filename = "/tmp/distro.out";
+//	infile.open(filename);
+//	if(infile.good()){
+//		getline(infile, distroLine);
+//	}
+//	infile.close();
+//	distroLine.erase(
+//	remove( distroLine.begin(), distroLine.end(), '\"' ),
+//	distroLine.end()
+//	);
+    struct utsname buffer;
+    uname(&buffer);
+		return buffer.sysname;
 	}
 	string getHostname() {
-		struct utsname sysinfo;
-		uname(&sysinfo);
-		hostname = sysinfo.nodename;
-		return hostname;
+		struct utsname buffer;
+    uname(&buffer);
+    return buffer.nodename;
 	}
 	string getUsername() {
 		username = getenv("USER");
@@ -55,37 +56,38 @@ public:
 		device.close();
 		return deviceName;
 	}
-	string getUptime() {
-		struct sysinfo info;
-		sysinfo(&info);
-		uptime = info.uptime;
+	//string getUptime() {
+	//	struct sysinfo info;
+	//	sysinfo(&info);
+	//	uptime = info.uptime;
 /* if its greater than 60 minutes we'll put it in hours*/
-		if(uptime/60 >= 60) {
-			uptimeHour = (uptime/60)/60;
-			uptimeHourWhole = uptimeHour;
-			uptimeMinutes = uptimeHour - uptimeHourWhole;
-			uptimeMinutesWhole = uptimeMinutes * 60;
+	//	if(uptime/60 >= 60) {
+	//		uptimeHour = (uptime/60)/60;
+	//		uptimeHourWhole = uptimeHour;
+	//		uptimeMinutes = uptimeHour - uptimeHourWhole;
+	//		uptimeMinutesWhole = uptimeMinutes * 60;
 /* if its greater than 24 hours we'll put it in days */
-			if(uptimeHour >= 24) {
-				uptimeDay = uptimeHour/24;
-				uptimeDayWhole = uptimeDay;
-				uptimeHour = uptimeDay - uptimeDayWhole;
-				uptimeHour = uptimeHour * 24;
-				uptimeHourWhole = uptimeHour;
-				uptimeStream << uptimeDayWhole << "d " << uptimeHourWhole << "h " << uptimeMinutesWhole << "m";
-			}
-			else {
-				uptimeStream << uptimeHourWhole << "h " << uptimeMinutesWhole << "m";
-			}
-		}
-		else {
-			uptimeMinutes = uptime/60;
-			uptimeMinutesWhole = uptimeMinutes;
-			uptimeStream << uptimeMinutesWhole << "m";
-		}
-		uptimeString = uptimeStream.str();
-		return uptimeString;
-	}
+	//		if(uptimeHour >= 24) {
+	//			uptimeDay = uptimeHour/24;
+	//			uptimeDayWhole = uptimeDay;
+	//			uptimeHour = uptimeDay - uptimeDayWhole;
+	//				uptimeHour = uptimeHour * 24;
+	
+	//				uptimeHourWhole = uptimeHour;
+	//			uptimeStream << uptimeDayWhole << "d " << uptimeHourWhole << "h " << uptimeMinutesWhole << "m";
+	//		}
+	//		else {
+	//			uptimeStream << uptimeHourWhole << "h " << uptimeMinutesWhole << "m";
+	//		}
+	//	}
+	//	else {
+	//		uptimeMinutes = uptime/60;
+//			uptimeMinutesWhole = uptimeMinutes;
+//			uptimeStream << uptimeMinutesWhole << "m";
+//		}
+//		uptimeString = uptimeStream.str();
+//		return uptimeString;
+//	}
 	string getShell() {
 		shell = getenv("SHELL");
 /* This line gets rid of the /bin/ part of the SHELL variable. I have noticed that in my debian VM with FISH the shell is in /usr/bin/ and in that case it removes the /usr/ */
@@ -176,17 +178,15 @@ int main() {
 /*This is the string that underlines your hostname and username, if you have any other characters between them make sure to adjust the +1*/
 	string underline((systemInfo.getUserHostLength()+1),'~');
 /* These are the lines referenced in the configuration instructions in the README.md comment or uncomment them to hide/show information */
-	cout << Colours.getTextColourBlue() << systemInfo.getUsername() << Colours.getTextColourNeutral() <<"@" << Colours.getTextColourGreen() << systemInfo.getHostname() << endl;
+	cout << Colours.getTextColourBlue() << systemInfo.getUsername() << Colours.getTextColourNeutral() <<"@" << Colours.getTextColourGreen() << systemInfo.getHostname() <<  endl;
 	cout << Colours.getTextColourBlue() << underline << endl;
 	cout << Colours.getTextColourGreen() << "OS:       " << Colours.getTextColourNeutral() << systemInfo.getOS() << endl;
-	cout << Colours.getTextColourGreen() << "Host:     " << Colours.getTextColourNeutral() << systemInfo.getDevice() << endl;
 	cout << Colours.getTextColourGreen() << "Kernel:   " << Colours.getTextColourNeutral() << systemInfo.getKernel() << endl;
-//	cout << Colours.getTextColourGreen() << "Arch:     " << Colours.getTextColourNeutral() << systemInfo.getArch() << endl;
-	cout << Colours.getTextColourGreen() << "Uptime:   " << Colours.getTextColourNeutral() << systemInfo.getUptime() << endl;
-	cout << Colours.getTextColourGreen() << "Terminal: " << Colours.getTextColourNeutral() << systemInfo.getTerm() << endl;
+	cout << Colours.getTextColourGreen() << "Arch:     " << Colours.getTextColourNeutral() << systemInfo.getArch() << endl;
+//	cout << Colours.getTextColourGreen() << "Terminal: " << Colours.getTextColourNeutral() << systemInfo.getTerm() << endl;
 	cout << Colours.getTextColourGreen() << "Shell:    " << Colours.getTextColourNeutral() << systemInfo.getShell() << endl;
 /*Some machines may not have editor or visual variables defined in their shell configuration files, please check beforehand if you want to use these features*/
-//	cout << Colours.getTextColourGreen() << "Editor:   " << Colours.getTextColourNeutral() << systemInfo.getEditor() << endl;
+	cout << Colours.getTextColourGreen() << "Editor:   " << Colours.getTextColourNeutral() << systemInfo.getEditor() << endl;
 //	cout << Colours.getTextColourGreen() << "Visual:   " << Colours.getTextColourNeutral() << systemInfo.getVisual() << endl;
 	cout << Colours.getColourBar() << endl; /*I would personally comment out this line if i were to uncomment the line below*/
 //	cout << Colours.getFullColourBar() << endl;
